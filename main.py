@@ -21,12 +21,15 @@ requests_session = requests.Session()
 requests_session.headers = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
                             'x-requested-with': 'XMLHttpRequest',}
 
-def set_new_proxy() : 
+def __set_new_proxy() : 
     creds = str(random.randint(10000,0x7fffffff)) + ":" + "foobar"
     requests_session.proxies = {'http': 'socks5h://{}@localhost:9050'.format(creds), 'https': 'socks5h://{}@localhost:9050'.format(creds)}
 
-def get_offer_description(page_content,offer_id) : 
-    soup = BeautifulSoup(page_content,'lxml')
+def get_offer_description(offer_id) : 
+    logger.info(f'set new proxy to fetch offer_id : {str(offer["id"])} ')
+    __set_new_proxy()
+    response = requests_session.get(project_page_url+str(offer['id']))
+    soup = BeautifulSoup(response.text,'lxml')
     category        = (soup.find_all('li',{'class':'breadcrumb-item'}))[-1].text.strip()
     title           = (soup.find_all('span',{'data-type':'page-header-title'}))[0].text.strip()
     price           = (soup.find_all('td',{'data-type':'project-budget_range'}))[0].text.strip()
@@ -36,7 +39,6 @@ def get_offer_description(page_content,offer_id) :
     logger.info(f'title : {title}')
     logger.info(f'price : {price}')
     logger.info(f'project_owner : {project_owner}')
-
     return {
         "offer_id" : offer_id,
         "category" :  category,
@@ -45,7 +47,7 @@ def get_offer_description(page_content,offer_id) :
         "project_owner" :project_owner
         }
 
-def build_message(offer : Offer) : 
+def __build_message(offer : Offer) : 
     return f'''------------------------------------------------------------------------
 📢 📢 عرض عمل جديد 📢📢
 ------------------------------------------------------------------------ 
@@ -67,28 +69,27 @@ def build_message(offer : Offer) :
 ------------------------------------------------------------------------
 '''
 
-def send_alert(offer : Offer) : 
+def __send_alert(offer : Offer) : 
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton("⬅️ اضغط هنا للذهاب لصفحة العؤض ➡️", url=project_page_url+str(offer.offer_id)))
     bot.send_message(chat_id=chat_id,
-                     text=build_message(offer),
+                     text=__build_message(offer),
                      reply_markup=markup)
 
 while True : 
-    set_new_proxy()
+    __set_new_proxy()
     database_session = Session(engine)
     response = requests_session.get(projects_page_url)
     try : 
         offers = response.json()['collection']
         logger.info(f'fetch {len(offers)} offers')
         for offer in offers : 
-            logger.info(f'set new proxy to fetch offer_id : {str(offer["id"])} ')
-            set_new_proxy()
+
             fetched_offer = database_session.exec(select(Offer).where(Offer.offer_id==offer['id'])).first()
             if fetched_offer :
                 continue
             response = requests_session.get(project_page_url+str(offer['id']))
-            offer_description = get_offer_description(response.text,offer['id'])
+            offer_description = get_offer_description(offer['id'])
             offer_to_send = Offer(
                 offer_id        = offer_description['offer_id'],
                 category        = offer_description['category'],
@@ -100,7 +101,7 @@ while True :
             database_session.add(offer_to_send)
             database_session.commit()
             database_session.refresh(offer_to_send)
-            send_alert(offer_to_send)
+            __send_alert(offer_to_send)
 
     except Exception as e :
         logger.error(f'error occured : {str(e)}')
