@@ -21,13 +21,14 @@ requests_session = requests.Session()
 requests_session.headers = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
                             'x-requested-with': 'XMLHttpRequest',}
 
-def __set_new_proxy() : 
+def set_new_proxy() : 
     creds = str(random.randint(10000,0x7fffffff)) + ":" + "foobar"
     requests_session.proxies = {'http': 'socks5h://{}@localhost:9050'.format(creds), 'https': 'socks5h://{}@localhost:9050'.format(creds)}
 
+
 def get_offer_description(offer_id) : 
     logger.info(f'set new proxy to fetch offer_id : {str(offer["id"])} ')
-    __set_new_proxy()
+    set_new_proxy()
     response = requests_session.get(project_page_url+str(offer['id']))
     soup = BeautifulSoup(response.text,'lxml')
     category        = (soup.find_all('li',{'class':'breadcrumb-item'}))[-1].text.strip()
@@ -47,7 +48,7 @@ def get_offer_description(offer_id) :
         "project_owner" :project_owner
         }
 
-def __build_message(offer : Offer) : 
+def build_message(offer : Offer) : 
     return f'''------------------------------------------------------------------------
 📢 📢 عرض عمل جديد 📢📢
 ------------------------------------------------------------------------ 
@@ -69,15 +70,15 @@ def __build_message(offer : Offer) :
 ------------------------------------------------------------------------
 '''
 
-def __send_alert(offer : Offer) : 
+def send_alert(offer : Offer) : 
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("⬅️ اضغط هنا للذهاب لصفحة العؤض ➡️", url=project_page_url+str(offer.offer_id)))
+    markup.add(InlineKeyboardButton("⬅️ اضغط هنا للذهاب لصفحة العرض ➡️", url=project_page_url+str(offer.offer_id)))
     bot.send_message(chat_id=chat_id,
-                     text=__build_message(offer),
+                     text=build_message(offer),
                      reply_markup=markup)
 
 while True : 
-    __set_new_proxy()
+    set_new_proxy()
     database_session = Session(engine)
     response = requests_session.get(projects_page_url)
     try : 
@@ -101,10 +102,13 @@ while True :
             database_session.add(offer_to_send)
             database_session.commit()
             database_session.refresh(offer_to_send)
-            __send_alert(offer_to_send)
+            send_alert(offer_to_send)
 
+        
     except Exception as e :
         logger.error(f'error occured : {str(e)}')
+        
+    database_session.close()
 
 
 
