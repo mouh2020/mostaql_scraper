@@ -18,7 +18,7 @@ Unofficial bot who scrapes offers the moment they are published on Mostaql freel
 
 We use Tor service to scrape data, as it allows us to change our IP address for each request, thus avoiding potential bans. Tor service provides this IP rotation functionality, and it is free to use.
 
-**Run localy :**
+**How to start the bot?**
 
 *   Get your telegram chat\_id from [here](https://t.me/get_id_bot) 
 *   Create new bot from [here](http://https://t.me/BotFather) and extract the bot_token.
