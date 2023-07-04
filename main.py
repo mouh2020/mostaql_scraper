@@ -1,4 +1,4 @@
-import requests,random,telebot
+import requests,random,telebot,time
 from config import *
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from json import JSONDecodeError
@@ -91,11 +91,10 @@ while True :
             database_session.add(offer_to_send)
             database_session.commit()
             send_alert(offer_to_send)
-
-        
     except Exception as e :
         logger.error(f'error occured : {str(e)}')
-        
+    logger.info('sleep for 1 minute to release the resources')
+    time.sleep(60)
     database_session.close()
 
 
