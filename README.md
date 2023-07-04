@@ -20,7 +20,8 @@ We use Tor service to scrape data, as it allows us to change our IP address for 
 
 **Run localy :**
 
-*   Get your telegram chat\_id from [here](https://t.me/get_id_bot) and create new bot from [here](http://https://t.me/BotFather) and extract the bot_token.
+*   Get your telegram chat\_id from [here](https://t.me/get_id_bot) 
+*   Create new bot from [here](http://https://t.me/BotFather) and extract the bot_token.
 *   Send at least one message from your Telegram account to the Bot.
 *   Open config.py file and put the chat\_id and bot_token to their corresponding name.
 *   Clone the repository or download it from [here](https://github.com/mouh2020/mostaql_scraper/archive/refs/heads/master.zip) and unzip it.
