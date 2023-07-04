@@ -49,30 +49,20 @@ def get_offer_description(offer_id) :
         }
 
 def build_message(offer : Offer) : 
-    return f'''------------------------------------------------------------------------
-📢 📢 عرض عمل جديد 📢📢
------------------------------------------------------------------------- 
-- مجال العمل    ↙️ ↙️
+    return f'''📣📣 New Job Alert 📣📣
 
-📌📌 {offer.category} 📌📌
+🔹 Job Field: {offer.category}
 ------------------------------------------------------------------------
-- عنوان العمل   ↙️ ↙️
-
-📱{offer.title}📱
+🔹 Job Title: {offer.title}
 ------------------------------------------------------------------------
-- ميزانية العمل ↙️ ↙️
-
-🤑🤑 {offer.price} 🤑🤑
+🔹 Job Budget: {offer.price}
 ------------------------------------------------------------------------
-- صاحب العمل ↙️ ↙️
-
-👨‍💼👨‍💼 {offer.project_owner} 👨‍💼👨‍💼
+🔹 Employer: {offer.project_owner}
 ------------------------------------------------------------------------
 '''
-
 def send_alert(offer : Offer) : 
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("⬅️ اضغط هنا للذهاب لصفحة العرض ➡️", url=project_page_url+str(offer.offer_id)))
+    markup.add(InlineKeyboardButton("⬅️ Click here to visit the project's page ➡️", url=project_page_url+str(offer.offer_id)))
     bot.send_message(chat_id=chat_id,
                      text=build_message(offer),
                      reply_markup=markup)
@@ -98,10 +88,8 @@ while True :
                 project_owner   = offer_description['project_owner'],
                 price           = offer_description['price']
             )
-
             database_session.add(offer_to_send)
             database_session.commit()
-            database_session.refresh(offer_to_send)
             send_alert(offer_to_send)
 
         
