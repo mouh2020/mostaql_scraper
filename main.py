@@ -60,7 +60,7 @@ def build_message(offer : Offer) :
 🔹 Employer: {offer.project_owner}
 ------------------------------------------------------------------------
 '''
-def send_alert(offer : Offer) : 
+def send_alert(chat_id,offer : Offer) : 
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton("⬅️ Click here to visit the project's page ➡️", url=project_page_url+str(offer.offer_id)))
     bot.send_message(chat_id=chat_id,
@@ -90,7 +90,8 @@ while True :
             )
             database_session.add(offer_to_send)
             database_session.commit()
-            send_alert(offer_to_send)
+            for chat_id in chat_ids : 
+                send_alert(chat_id,offer_to_send)
     except Exception as e :
         logger.error(f'error occured : {str(e)}')
     logger.info('sleep for 1 minute to release the resources')
