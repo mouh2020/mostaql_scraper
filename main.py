@@ -65,7 +65,8 @@ def send_alert(chat_id,offer : Offer) :
     markup.add(InlineKeyboardButton("⬅️ Click here to visit the project's page ➡️", url=project_page_url+str(offer.offer_id)))
     bot.send_message(chat_id=chat_id,
                      text=build_message(offer),
-                     reply_markup=markup)
+                     reply_markup=markup,
+                     disable_web_page_preview=True)
 
 while True : 
     set_new_proxy()
